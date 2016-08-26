@@ -70,6 +70,8 @@ interface TypeInterface
     public function getNotifyReplyToMailAddress($formData = array());
 
     /**
+     * @deprecated intention is deprecated in symfony will be removed in 1.0.0
+     *
      * @return string
      */
     public function getDefaultIntention();

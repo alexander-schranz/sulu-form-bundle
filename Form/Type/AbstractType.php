@@ -62,11 +62,13 @@ abstract class AbstractType extends SymfonyAbstractType implements TypeInterface
     }
 
     /**
+     * @deprecated intention is deprecated in symfony will be removed in 1.0.0
+     *
      * @return string
      */
     public function getDefaultIntention()
     {
-        return md5($this->getName());
+        return $this->getName();
     }
 
     /**
