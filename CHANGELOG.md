@@ -1,7 +1,14 @@
 # Changelog
 
-## 1.0.0-RC2
+## 1.0.0-RC3
 
+ - FEATURE    #74    Added mailchimp field type (requires https://github.com/drewm/mailchimp-api)
+ - BUGFIX     #76    Fixed csrf token generation in esi
+ - BUGFIX     #75    Fixed csrf token generation for dynamic form
+ - FEATURE    #73    Added type sort after translation function
+ 
+## 1.0.0-RC2
+ 
  - BUGFIX     #70    Fixed token esi response header
  - BUGFIX     #71    Fixed customer emails for dynamic forms
  - FEATURE    #68    Added checkboxes to deactivate notify and success emails
