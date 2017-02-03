@@ -328,9 +328,6 @@ class Builder implements BuilderInterface
 
                 // handle special types
                 switch ($field->getType()) {
-                    case Dynamic::TYPE_DATE:
-                        $value = new \DateTime($value);
-                        break;
                     case Dynamic::TYPE_DROPDOWN_MULTIPLE:
                     case Dynamic::TYPE_CHECKBOX_MULTIPLE:
                         $value = preg_split('/\r\n|\r|\n/', $value, -1, PREG_SPLIT_NO_EMPTY);
