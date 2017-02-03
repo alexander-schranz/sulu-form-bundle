@@ -8,10 +8,17 @@ class Dynamic implements TimestampableInterface
 {
     const TYPE_ATTACHMENT = 'attachment';
 
-    protected static $arrayTypes = [
+    protected static $ARRAY_TYPES = [
         'checkboxMultiple',
         'dropdownMultiple',
-        'attachment',
+        self::TYPE_ATTACHMENT,
+    ];
+
+    protected static $HIDDEN_TYPES = [
+        'spacer',
+        'headline',
+        'freeText',
+        'recaptcha',
     ];
 
     /**
@@ -202,7 +209,7 @@ class Dynamic implements TimestampableInterface
     public function __set($name, $value)
     {
         if (property_exists($this, $name)) {
-            if (in_array($name, self::$arrayTypes)) {
+            if (in_array($name, self::$ARRAY_TYPES)) {
                 $value = json_encode($value, JSON_UNESCAPED_UNICODE);
             }
 
@@ -297,7 +304,11 @@ class Dynamic implements TimestampableInterface
     public function getField($key)
     {
         if (property_exists($this, $key)) {
-            if (in_array($key, [self::TYPE_CHECKBOX_MULTIPLE, self::TYPE_DROPDOWN_MULTIPLE, self::TYPE_ATTACHMENT])) {
+            if (in_array($key, self::$ARRAY_TYPES)) {
+                if (!is_string($this->$key)) {
+                    return;
+                }
+
                 return json_decode($this->$key, true);
             }
 

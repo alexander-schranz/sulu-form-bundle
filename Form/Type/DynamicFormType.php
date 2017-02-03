@@ -330,10 +330,8 @@ class DynamicFormType extends AbstractType
     {
         $fileFields = [];
 
-        foreach ($this->formEntity->getFields() as $field) {
-            if ($field->getType() === Dynamic::TYPE_ATTACHMENT) {
-                $fileFields[] = $field->getKey();
-            }
+        foreach ($this->formEntity->getFieldsByType(Dynamic::TYPE_ATTACHMENT) as $field) {
+            $fileFields[] = $field->getKey();
         }
 
         return $fileFields;

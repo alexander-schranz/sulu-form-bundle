@@ -29,11 +29,6 @@ class FormSelect extends SimpleContentType
     private $formBuilder;
 
     /**
-     * @var FormFieldTypePool
-     */
-    private $typePool;
-
-    /**
      * FormSelect constructor.
      *
      * @param string $template

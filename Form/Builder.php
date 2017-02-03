@@ -3,6 +3,7 @@
 namespace Sulu\Bundle\FormBundle\Form;
 
 use Doctrine\ORM\NoResultException;
+use Sulu\Bundle\FormBundle\Dynamic\FormFieldTypePool;
 use Sulu\Bundle\FormBundle\Entity\Dynamic;
 use Sulu\Bundle\FormBundle\Entity\Form;
 use Sulu\Bundle\FormBundle\Form\Type\DynamicFormType;
@@ -31,6 +32,11 @@ class Builder implements BuilderInterface
     protected $requestStack;
 
     /**
+     * @var FormFieldTypePool
+     */
+    protected $formFieldTypePool;
+
+    /**
      * @var FormRepository
      */
     protected $formRepository;
@@ -54,6 +60,7 @@ class Builder implements BuilderInterface
      * Builder constructor.
      *
      * @param RequestStack $requestStack
+     * @param FormFieldTypePool $formFieldTypePool
      * @param FormRepository $formRepository
      * @param CollectionStrategyInterface $collectionStrategy
      * @param FormFactory $formFactory
@@ -61,12 +68,14 @@ class Builder implements BuilderInterface
      */
     public function __construct(
         RequestStack $requestStack,
+        FormFieldTypePool $formFieldTypePool,
         FormRepository $formRepository,
         CollectionStrategyInterface $collectionStrategy,
         FormFactory $formFactory,
         $defaultStructureView
     ) {
         $this->requestStack = $requestStack;
+        $this->formFieldTypePool = $formFieldTypePool;
         $this->formRepository = $formRepository;
         $this->collectionStrategy = $collectionStrategy;
         $this->formFactory = $formFactory;
@@ -303,7 +312,8 @@ class Builder implements BuilderInterface
                 $typeId,
                 $typeName,
                 $locale
-            )
+            ),
+            $this->formFieldTypePool
         );
     }
 
