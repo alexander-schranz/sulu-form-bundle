@@ -14,6 +14,14 @@
                 <source>l91_sulu_form.created</source>
                 <target>Created on</target>
             </trans-unit>
+            <trans-unit id="4">
+                <source>l91_sulu_form.overlay.start_date</source>
+                <target>Start date</target>
+            </trans-unit>
+            <trans-unit id="5">
+                <source>l91_sulu_form.overlay.end_date</source>
+                <target>End date</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
