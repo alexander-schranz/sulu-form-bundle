@@ -35,6 +35,10 @@
                 <source>l91_sulu_form.deactivate_customer</source>
                 <target>deactivate Successmails</target>
             </trans-unit>
+            <trans-unit id="9">
+                <source>l91_sulu_form.user_as_reply_to</source>
+                <target>Autofill "reply-to" address</target>
+            </trans-unit>
 
             <!-- Types -->
             <trans-unit id="10">
@@ -145,6 +149,10 @@
                 <source>l91_sulu_form.type.mailchimp</source>
                 <target>Mailchimp</target>
             </trans-unit>
+            <trans-unit id="38">
+                <source>l91_sulu_form.type.recaptcha</source>
+                <target>Captcha</target>
+            </trans-unit>
 
             <!-- Form -->
             <trans-unit id="50">
@@ -215,6 +223,14 @@
                 <source>l91_sulu_form.mailchimp_list</source>
                 <target>Mailchimp List</target>
             </trans-unit>
+            <trans-unit id="67">
+                <source>l91_sulu_form.birthday</source>
+                <target>Birthday</target>
+            </trans-unit>
+            <trans-unit id="68">
+                <source>l91_sulu_form.forms.save.error</source>
+                <target>Formular was not saved</target>
+            </trans-unit>
 
             <!-- Width -->
             <trans-unit id="70">
@@ -248,6 +264,32 @@
             <trans-unit id="77">
                 <source>l91_sulu_form.width.five-sixths</source>
                 <target>five sixths</target>
+            </trans-unit>
+
+            <!-- File Types -->
+            <trans-unit id="80">
+                <source>l91_sulu_form.attachment_restrict</source>
+                <target>Restrict file types</target>
+            </trans-unit>
+            <trans-unit id="81">
+                <source>l91_sulu_form.attachment_restrict.hint</source>
+                <target>No choice will allow all file types.</target>
+            </trans-unit>
+            <trans-unit id="82">
+                <source>l91_sulu_form.attachment.image</source>
+                <target>Images</target>
+            </trans-unit>
+            <trans-unit id="83">
+                <source>l91_sulu_form.attachment.audio</source>
+                <target>Audio</target>
+            </trans-unit>
+            <trans-unit id="84">
+                <source>l91_sulu_form.attachment.video</source>
+                <target>Videos</target>
+            </trans-unit>
+            <trans-unit id="86">
+                <source>l91_sulu_form.attachment_max</source>
+                <target>Maximale amount</target>
             </trans-unit>
         </body>
     </file>

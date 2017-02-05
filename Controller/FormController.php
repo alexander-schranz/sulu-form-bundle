@@ -2,7 +2,6 @@
 
 namespace L91\Sulu\Bundle\FormBundle\Controller;
 
-use DrewM\MailChimp\MailChimp;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use L91\Sulu\Bundle\FormBundle\Entity\Dynamic;
@@ -14,7 +13,6 @@ use Sulu\Component\Rest\ListBuilder\Doctrine\FieldDescriptor\DoctrineDescriptor;
 use Sulu\Component\Rest\ListBuilder\Doctrine\FieldDescriptor\DoctrineFieldDescriptor;
 use Sulu\Component\Rest\ListBuilder\Doctrine\FieldDescriptor\DoctrineJoinDescriptor;
 use Sulu\Component\Rest\ListBuilder\ListRepresentation;
-use Sulu\Component\Rest\ListBuilder\ListRestHelper;
 use Sulu\Component\Rest\RestHelperInterface;
 use Sulu\Component\Security\SecuredControllerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,8 +56,8 @@ class FormController extends FOSRestController implements ClassResourceInterface
             Form::class,
             'public.id',
             [],
-            false,
-            true
+            true,
+            false
         );
 
         $fieldDescriptors['title'] = new DoctrineCaseFieldDescriptor(
@@ -86,7 +84,9 @@ class FormController extends FOSRestController implements ClassResourceInterface
                     ),
                 ]
             ),
-            'public.title'
+            'public.title',
+            false,
+            true
         );
 
         $fieldDescriptors['changed'] = new DoctrineCaseFieldDescriptor(
@@ -193,7 +193,11 @@ class FormController extends FOSRestController implements ClassResourceInterface
         $types = Dynamic::$TYPES;
 
         if (!empty($mailChimpLists)) {
-            $types = array_merge(Dynamic::$TYPES, [Dynamic::TYPE_MAILCHIMP]);
+            $types[] = Dynamic::TYPE_MAILCHIMP;
+        }
+
+        if (class_exists(\EWZ\Bundle\RecaptchaBundle\Form\Type\RecaptchaType::class)) {
+            $types[] = Dynamic::TYPE_RECAPTCHA;
         }
 
         return $this->render(
@@ -214,14 +218,14 @@ class FormController extends FOSRestController implements ClassResourceInterface
     public function getMailChimpLists()
     {
         $lists = [];
-        $apiKey = $this->getParameter('mailchimp_api_key');
+        $apiKey = $this->getParameter('l91.sulu.form.mailchimp_api_key');
 
         // if mailchimp class doesn't exist or no key is set return empty list
-        if (!class_exists('DrewM\MailChimp\MailChimp') || !$apiKey) {
+        if (!class_exists(\DrewM\MailChimp\MailChimp::class) || !$apiKey) {
             return $lists;
         }
 
-        $mailChimp = new MailChimp($apiKey);
+        $mailChimp = new \DrewM\MailChimp\MailChimp($apiKey);
         $response = $mailChimp->get('lists');
 
         if (!isset($response['lists'])) {
@@ -250,13 +254,13 @@ class FormController extends FOSRestController implements ClassResourceInterface
         $sortedTypes = [];
 
         foreach ($types as $key => $type) {
-            $translation = $translator->trans('l91_sulu_form.type.' . $type);
+            $translation = $translator->trans('l91_sulu_form.type.' . strtolower($type), [], 'backend');
             $sortedTypes[$translation . $key] = $type;
         }
 
         ksort($sortedTypes);
 
-        return $sortedTypes;
+        return array_values($sortedTypes);
     }
 
     /**
@@ -424,7 +428,7 @@ class FormController extends FOSRestController implements ClassResourceInterface
     {
         $filters = $request->query->all();
 
-        $listRestHelper = new ListRestHelper($request);
+        $listRestHelper = $this->get('sulu_core.list_rest_helper');
 
         unset($filters['page']);
         unset($filters['limit']);
@@ -543,6 +547,7 @@ class FormController extends FOSRestController implements ClassResourceInterface
                 'sendAttachments' => $translation->getSendAttachments(),
                 'deactivateNotifyMails' => $translation->getDeactivateNotifyMails(),
                 'deactivateCustomerMails' => $translation->getDeactivateCustomerMails(),
+                'replyTo' => $translation->getReplyTo(),
             ];
         }
 

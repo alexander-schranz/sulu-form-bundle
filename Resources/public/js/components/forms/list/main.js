@@ -78,7 +78,9 @@ define(['l91suluform/collections/forms'], function (Collection) {
             );
 
             // init list-toolbar and datagrid
-            this.sandbox.sulu.initListToolbarAndList.call(this, constants.toolbarKey, constants.fieldsAction,
+            this.sandbox.sulu.initListToolbarAndList.call(
+                this, constants.toolbarKey,
+                constants.fieldsAction + '?locale=' + this.options.language,
                 {
                     // options for the header (list-toolbar)
                     el: this.$find('#' + constants.toolbarId),
@@ -89,14 +91,14 @@ define(['l91suluform/collections/forms'], function (Collection) {
                     // options for the content (datagrid)
                     el: this.$find('#' + constants.listId),
                     instanceName: this.instanceName,
-                    url: constants.endPointUrl + '?locale=' + this.options.language + '&flat=true',
+                    url: constants.endPointUrl + '?locale=' + this.options.language + '&flat=true&sortBy=title&sortOrder=asc',
                     resultKey: constants.toolbarKey,
                     searchFields: constants.toolbarSearchFields,
                     viewOptions: {
                         table: {
                             icons: [
                                 {
-                                    column: 'id',
+                                    column: 'title',
                                     icon: 'pencil',
                                     align: 'left',
                                     callback: this.edit.bind(this)

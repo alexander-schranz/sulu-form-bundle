@@ -6,6 +6,7 @@ use L91\Sulu\Bundle\FormBundle\Entity\Dynamic;
 use L91\Sulu\Bundle\FormBundle\Entity\Form;
 use L91\Sulu\Bundle\FormBundle\Entity\FormFieldTranslation;
 use L91\Sulu\Bundle\FormBundle\Entity\FormTranslation;
+use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
@@ -17,6 +18,11 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Count;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DynamicFormType extends AbstractType
@@ -78,6 +84,8 @@ class DynamicFormType extends AbstractType
             throw new \Exception('The form with the ID "' . $this->formEntity->getId() . '" does not exist for the locale "' . $this->locale . '"!');
         }
 
+        $currentWidthValue = 0;
+
         foreach ($this->formEntity->getFields() as $field) {
             $translation = $field->getTranslation($this->locale);
             $name = $field->getKey();
@@ -100,9 +108,12 @@ class DynamicFormType extends AbstractType
                 $width = $field->getWidth();
             }
 
-            $options['label'] = $title;
+            $lastWidth = $this->getLastWidth($currentWidthValue, $width);
+
+            $options['label'] = $title ?: false;
             $options['required'] = $field->getRequired();
             $options['attr']['width'] = $width;
+            $options['attr']['lastWidth'] = $lastWidth;
             $options['attr']['placeholder'] = $placeholder;
 
             // required
@@ -135,19 +146,78 @@ class DynamicFormType extends AbstractType
                     break;
                 case Dynamic::TYPE_EMAIL:
                     $type = EmailType::class;
+                    $options['constraints'][] = new Email();
                     break;
                 case Dynamic::TYPE_DATE:
                     $type = DateType::class;
-                    $options['widget'] = 'single_text';
+                    if ($translation && $translation->getOption('birthday')) {
+                        $type = BirthdayType::class;
+                    }
+                    $options['format'] = \IntlDateFormatter::LONG;
+                    $options['input'] = 'string';
+
                     break;
                 case Dynamic::TYPE_ATTACHMENT:
                     $type = FileType::class;
                     $options['mapped'] = false;
+                    $allConstraints = [];
+
+                    // Mime Types Filter
+                    $mimeTypes = [];
+
+                    if (is_array($translation->getOption('type'))) {
+                        foreach ($translation->getOption('type') as $attachmentType) {
+                            $mimeTypes[] = $attachmentType . '/*';
+                        }
+                    }
+
+                    $options['attr']['accept'] = implode(',', $mimeTypes);
+
+                    // File Constraint
+                    if ($translation->getOption('type') === ['image']) {
+                        $fileConstraint = new Image();
+                    } else {
+                        $fileConstraint = new File([
+                            'mimeTypes' => $mimeTypes,
+                        ]);
+                    }
+
+                    $allConstraints[] = $fileConstraint;
+
+                    // Required for Files
+                    if ($field->getRequired()) {
+                        $allConstraints[] = new NotBlank();
+                    }
+
+                    // File Constraint
+                    $options['constraints'][] = new All([
+                        'constraints' => $allConstraints,
+                    ]);
+
+                    // Max File Constraint
+                    if ($fileMax = (int) $translation->getOption('max')) {
+                        $options['constraints'][] = new Count([
+                            'max' => $fileMax,
+                        ]);
+
+                        $options['attr']['max'] = $fileMax;
+                    }
+
                     $options['multiple'] = true;
                     break;
                 case Dynamic::TYPE_CHECKBOX:
                 case Dynamic::TYPE_MAILCHIMP:
                     $type = CheckboxType::class;
+                    break;
+                case Dynamic::TYPE_RECAPTCHA:
+                    // use in this way the recaptcha bundle could maybe not exists
+                    $type = \EWZ\Bundle\RecaptchaBundle\Form\Type\RecaptchaType::class;
+                    $options['mapped'] = false;
+                    $options['constraints'][] = new \EWZ\Bundle\RecaptchaBundle\Validator\Constraints\IsTrue();
+                    $options['attr']['options'] = [
+                        'theme' => 'light',
+                        'type' => 'image',
+                    ];
                     break;
                 case Dynamic::TYPE_CHECKBOX_MULTIPLE:
                     $type = $this->createChoiceType($translation, $options, true, true);
@@ -270,9 +340,44 @@ class DynamicFormType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    public function getNotifyReplyToMailAddress($formData = [])
+    {
+        if ($this->getTranslation()->getReplyTo()) {
+            $email = $this->getCustomerToMailAddress($formData);
+
+            if (!$email) {
+                return $email;
+            }
+        }
+
+        return parent::getNotifyReplyToMailAddress($formData);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getCustomerMail($formData = [])
     {
         return $this->structureView . '-mail/' . $this->name . '-success.html.twig';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCustomerToMailAddress($formData = [])
+    {
+        $email = null;
+
+        if ($formData instanceof Dynamic) {
+            $emails = $formData->getFieldsByType('email');
+            $email = reset($emails);
+        }
+
+        if (!$email) {
+            $email = parent::getCustomerToMailAddress($formData);
+        }
+
+        return $email;
     }
 
     /**
@@ -357,5 +462,51 @@ class DynamicFormType extends AbstractType
     public function getTranslation()
     {
         return $this->formEntity->getTranslation($this->locale, false, true);
+    }
+
+    /**
+     * @param int $currentWidthValue
+     * @param string $width
+     *
+     * @return bool
+     */
+    private function getLastWidth(&$currentWidthValue, $width)
+    {
+        switch ($width) {
+            case 'one-sixth':
+                $itemWidth = 2;
+                break;
+            case 'five-sixths':
+                $itemWidth = 10;
+                break;
+            case 'one-quarter':
+                $itemWidth = 3;
+                break;
+            case 'three-quarters':
+                $itemWidth = 9;
+                break;
+            case 'one-third':
+                $itemWidth = 4;
+                break;
+            case 'two-thirds':
+                $itemWidth = 8;
+                break;
+            case 'half':
+                $itemWidth = 6;
+                break;
+            case 'full':
+                $itemWidth = 12;
+                break;
+            default:
+                $itemWidth = 12;
+        }
+
+        $currentWidthValue += $itemWidth;
+
+        if ($currentWidthValue % 12 == 0) {
+            return true;
+        }
+
+        return false;
     }
 }
