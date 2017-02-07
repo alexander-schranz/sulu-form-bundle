@@ -2,6 +2,7 @@
 
 ## 1.0.0
 
+ - BUGFIX      #141   Fixed function name for csv export overlay
  - FEATURE     #137   Added daterange to csv export overlay for sulu 1.5
  - BUGFIX      #140   Fixed date type default value
  - BUGFIX      #139   Fixed form preview request analyzer

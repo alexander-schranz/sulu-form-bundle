@@ -9,7 +9,7 @@ define(['text!/admin/api/form/templates/csv-export.html'], function(form) {
     return {
         type: 'csv-export',
 
-        getForm: function() {
+        getFormTemplate: function() {
             return form;
         }
     };
