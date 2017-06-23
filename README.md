@@ -1,4 +1,5 @@
-# ATTENTION! This bundle was replaced with the [sulu/SuluFormBundle](https://github.com/sulu/SuluFormBundle "SuluFormBundle")
+# ATTENTION!  
+# This bundle was replaced with the [sulu/SuluFormBundle](https://github.com/sulu/SuluFormBundle "SuluFormBundle")
 
 # Sulu Form Bundle
 
