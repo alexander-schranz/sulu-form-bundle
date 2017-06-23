@@ -1,3 +1,5 @@
+# ATTENTION! This bundle was replaced with the [sulu/SuluFormBundle](https://github.com/sulu/SuluFormBundle "SuluFormBundle")
+
 # Sulu Form Bundle
 
 Simple handling from Symfony Forms in [Sulu.io](http://sulu.io).  
@@ -5,11 +7,7 @@ You can use this Bundle to create and handle static *(integrated in a Sulu page 
 
 [Documentation](Resources/doc/index.md "Documentation")
 
-## Future Updates
-
-The bundle moved [SuluFormBundle](https://github.com/sulu/SuluFormBundle "SuluFormBundle").
-
-**Migration to sulu/sulu-form-bundle**
+## Migration to sulu/sulu-form-bundle
 
 The ^1.0 version can be migrated to ^0.1 of the sulu bundle with the following SQL statements:
 
