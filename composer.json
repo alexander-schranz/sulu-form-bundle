@@ -13,6 +13,7 @@
             "email": "alex.schranz91@gmail.com"
         }
     ],
+    "abandoned": "sulu/sulu-form-bundle",
     "homepage": "https://github.com/alexander-schranz/sulu-form-bundle",
     "autoload": {
         "psr-0": {
